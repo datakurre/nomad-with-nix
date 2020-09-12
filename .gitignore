@@ -1,0 +1,6 @@
+.cache/
+.direnv/
+*.egg-info/
+__pycache__
+artifacts/*.tar.*
+result
