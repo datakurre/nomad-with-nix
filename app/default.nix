@@ -8,9 +8,14 @@ buildPythonPackage {
   pname = "app";
   version = "1.0";
   src = lib.cleanSource ./.;
+  buildInputs = [
+    mypy
+  ];
   propagatedBuildInputs = [
+    asyncpg
     databases
     fastapi
+    psycopg2
     uvicorn
   ];
 }

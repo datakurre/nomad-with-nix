@@ -5,5 +5,7 @@
 pkgs.mkShell {
   buildInputs = with pkgs; [
     app
+    netcat
+    postgresql
   ];
 }

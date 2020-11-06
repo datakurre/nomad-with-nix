@@ -1,5 +1,4 @@
 { pkgs ? import ../nix {}
-, app ? import ./. { inherit pkgs; }
 , name ? "artifact"
 }:
 
@@ -12,8 +11,7 @@ let
     paths = [
       bashInteractive
       coreutils
-      netcat
-      app
+      postgresql
     ];
   };
 
@@ -26,12 +24,12 @@ runCommand name {
 } ''
 mkdir -p local/bin
 makeWrapper ${bashInteractive}/bin/sh local/bin/sh \
-  --set PATH ${coreutils}/bin \
-  --prefix PATH : ${netcat}/bin \
-  --prefix PATH : ${app}/bin
+  --prefix PATH : ${coreutils}/bin \
+  --prefix PATH : ${postgresql}/bin
 tar cvzhP \
   --hard-dereference \
-  --exclude="${env}/*" \
+  --exclude="${env}" \
+  --exclude="*ncurses*/ncurses*/ncurses*" \
   --files-from=${closure} \
   local > $out || true
 ''

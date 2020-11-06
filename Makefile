@@ -21,9 +21,17 @@ show:
 	@echo NOMAD_NIX: $(NOMAD_NIX)
 	@echo NIX_SHELL: $(NIX_SHELL)
 
-.PHONY: server-artifacts
-serve-artifacts:
+.PHONY: app-artifact
+app-artifact:
 	make -C app
+
+.PHONY: postgres-artifact
+postgres-artifact:
+	make -C postgres
+
+.PHONY: serve-artifacts
+serve-artifacts:
+	make -j app-artifact postgres-artifact
 	nix-shell -p python3 --run "python3 -m http.server --directory artifacts 8080"
 
 .PHONY: run-nomad
@@ -37,10 +45,18 @@ run-job: $(NOMAD_JOB)
 	echo "Waiting for nomad at $(NOMAD_ADDR)"; sleep 2; done
 	nomad run $(NOMAD_JOB)
 
+.PHONY: run-artifact-job
+run-artifact-job: $(NOMAD_JOB)
+	while ! nc -z $(NOMAD_IP) $(NOMAD_PORT); do \
+	echo "Waiting for nomad at $(NOMAD_ADDR)"; sleep 2; done
+	while ! nc -z 127.0.0.1 8080; do \
+	echo "Waiting for artifacts at 127.0.0.1:8080"; sleep 2; done
+	nomad run $(NOMAD_JOB)
+
 .PHONY: develop
 develop:
 	make -j run-nomad run-job
 
 .PHONY: serve
 serve:
-	sudo make NOMAD_JOB=production.hcl -j serve-artifacts run-nomad run-job
+	sudo make NOMAD_JOB=production.hcl -j serve-artifacts run-nomad run-artifact-job

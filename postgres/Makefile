@@ -1,5 +1,5 @@
-ARTIFACT_NAME = app
-ARTIFACT_VERSION ?= 1.0
+ARTIFACT_NAME = postgresql
+ARTIFACT_VERSION ?= 11.9-0
 ARTIFACT_FULLNAME ?= ../artifacts/$(ARTIFACT_NAME)-$(ARTIFACT_VERSION).tar.gz
 
 SOURCES := $(shell find . -name "*.py")

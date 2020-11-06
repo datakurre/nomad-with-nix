@@ -7,6 +7,7 @@ pkgs.mkShell {
     netcat
     niv
     nomad_0_12
+    levant
   ];
   shellHook = ''
     export NOMAD_ADDR=http://127.0.0.1:4646
