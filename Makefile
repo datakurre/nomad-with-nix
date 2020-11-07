@@ -1,3 +1,6 @@
+export CONSUL_IP=127.0.0.1
+export CONSUL_PORT=8500
+export CONSUL_ADDR=http://$(CONSUL_IP):$(CONSUL_PORT)
 export NOMAD_IP=127.0.0.1
 export NOMAD_PORT=4646
 export NOMAD_ADDR=http://$(NOMAD_IP):$(NOMAD_PORT)
@@ -16,6 +19,7 @@ clean:
 
 .PHONY: show
 show:
+	@echo CONSUL_ADDR: $(CONSUL_ADDR)
 	@echo NOMAD_ADDR: $(NOMAD_ADDR)
 	@echo NOMAD_HOME: $(NOMAD_HOME)
 	@echo NOMAD_NIX: $(NOMAD_NIX)
@@ -33,6 +37,14 @@ postgres-artifact:
 serve-artifacts:
 	make -j app-artifact postgres-artifact
 	nix-shell -p python3 --run "python3 -m http.server --directory artifacts 8080"
+
+.PHONY: run-haproxy
+run-haproxy:
+	haproxy -f haproxy.conf
+
+.PHONY: run-consul
+run-consul:
+	consul agent -dev
 
 .PHONY: run-nomad
 run-nomad:
@@ -55,10 +67,10 @@ run-artifact-job: $(NOMAD_JOB)
 
 .PHONY: develop
 develop:
-	make -j run-nomad run-job
+	make -j run-consul run-nomad run-job
 
 .PHONY: serve
 serve:
 	sudo make \
 	NOMAD_VARIABLES=production.json NOMAD_JOB=production.hcl -j \
-	serve-artifacts run-nomad run-artifact-job
+	serve-artifacts run-haproxy run-consul run-nomad run-artifact-job

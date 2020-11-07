@@ -2,7 +2,7 @@ job "production" {
   datacenters = ["dc1"]
   type = "service"
 
-  group "app" {
+  group "database" {
 
     ephemeral_disk {
       migrate = true
@@ -12,13 +12,19 @@ job "production" {
 
     task "database" {
       driver = "exec"
-      lifecycle {
-        hook = "prestart"
-        sidecar = "true"
-      }
       resources {
         network {
           port "psql" {}
+        }
+      }
+      service {
+        name = "database"
+        port = "psql"
+        check {
+          type = "tcp"
+          port = "psql"
+          interval = "5s"
+          timeout = "2s"
         }
       }
       env {
@@ -32,7 +38,6 @@ job "production" {
 if [ ! -d ${PGDATA} ]; then
   initdb -U postgres
   echo "unix_socket_directories='${PGDATA}'" >> ${PGDATA}/postgresql.conf
-  cat ${PGDATA}/postgresql.conf
 fi
 exec postgres
 EOH
@@ -43,21 +48,34 @@ EOH
         destination = "/"
       }
     }
+  }
 
+  group "app" {
+    count = 2
+    update {
+      max_parallel = 1
+      min_healthy_time = "2m"
+      healthy_deadline = "15m"
+      progress_deadline = "20m"
+    }
     task "database-init" {
       driver = "exec"
       lifecycle {
         hook = "prestart"
         sidecar = "false"
       }
-      env {
-        PGARGS = "-h ${NOMAD_IP_database_psql} -p ${NOMAD_PORT_database_psql} -U postgres"
+      template {
+        data = <<EOH
+PGARGS=-h {{ range service "database" }}{{ .Address }} -p {{ .Port }}{{ end }} -U postgres
+EOH
+        destination = "local/file.env"
+        env = true
       }
       config {
         command = "/bin/sh"
         args = ["-c", <<EOH
 while ! pg_isready ${PGARGS}; do \
-echo "Waiting for database ${NOMAD_ADDR_database_psql}"; sleep 2; done
+echo "Waiting for database ${PGARGS}"; sleep 2; done
 
 if createdb ${PGARGS} app; then
   createuser ${PGARGS} app
@@ -80,8 +98,22 @@ EOH
           port "http" {}
         }
       }
-      env {
-        DATABASE_URL = "postgresql://app:app@${NOMAD_ADDR_database_psql}/app"
+      service {
+        name = "app"
+        port = "http"
+        check {
+          type = "http"
+          path = "/"
+          interval = "5s"
+          timeout = "2s"
+        }
+      }
+      template {
+        data = <<EOH
+DATABASE_URL=postgresql://app:app@{{ range service "database" }}{{ .Address }}:{{ .Port }}{{ end }}/app
+EOH
+        destination = "local/file.env"
+        env = true
       }
       config {
         command = "/bin/sh"
