@@ -6,8 +6,10 @@ setup(
         "main",
     ],
     install_requires=[
+        "asyncpg",
         "databases",
         "fastapi",
+        "psycopg2",
         "uvicorn",
     ],
     entry_points={

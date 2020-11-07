@@ -1,8 +1,8 @@
 { pkgs ? import ./nix {}
 , sources ? import ./nix/sources.nix
 }:
-   
-pkgs.mkShell {                         
+
+pkgs.mkShell {
   buildInputs = with pkgs; [
     niv
     nomad_0_12
