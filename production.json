@@ -1,0 +1,8 @@
+{
+  "postgres": {
+    "version": "11.9-0"
+  },
+  "app": {
+    "version": "1.0"
+  }
+}

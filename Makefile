@@ -51,7 +51,7 @@ run-artifact-job: $(NOMAD_JOB)
 	echo "Waiting for nomad at $(NOMAD_ADDR)"; sleep 2; done
 	while ! nc -z 127.0.0.1 8080; do \
 	echo "Waiting for artifacts at 127.0.0.1:8080"; sleep 2; done
-	nomad run $(NOMAD_JOB)
+	levant deploy -var-file ${NOMAD_VARIABLES} $(NOMAD_JOB)
 
 .PHONY: develop
 develop:
@@ -59,4 +59,6 @@ develop:
 
 .PHONY: serve
 serve:
-	sudo make NOMAD_JOB=production.hcl -j serve-artifacts run-nomad run-artifact-job
+	sudo make \
+	NOMAD_VARIABLES=production.json NOMAD_JOB=production.hcl -j \
+	serve-artifacts run-nomad run-artifact-job

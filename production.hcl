@@ -39,7 +39,7 @@ EOH
         ]
       }
       artifact {
-        source = "http://127.0.0.1:8080/postgresql-11.9-0.tar.gz"
+        source = "http://127.0.0.1:8080/postgresql-[[ .postgres.version ]].tar.gz"
         destination = "/"
       }
     }
@@ -68,7 +68,7 @@ EOH
         ]
       }
       artifact {
-        source = "http://127.0.0.1:8080/postgresql-11.9-0.tar.gz"
+        source = "http://127.0.0.1:8080/postgresql-[[ .postgres.version ]].tar.gz"
         destination = "/"
       }
     }
@@ -91,7 +91,7 @@ EOH
         ]
       }
       artifact {
-        source = "http://127.0.0.1:8080/app-1.0.tar.gz"
+        source = "http://127.0.0.1:8080/app-[[ .app.version ]].tar.gz"
         destination = "/"
       }
     }
