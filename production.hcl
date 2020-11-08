@@ -118,7 +118,7 @@ EOH
       config {
         command = "/bin/sh"
         args = ["-c", <<EOH
-uvicorn main:app --port ${NOMAD_PORT_http}
+uvicorn main:app --host ${NOMAD_IP_http} --port ${NOMAD_PORT_http}
 EOH
         ]
       }
