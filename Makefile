@@ -51,6 +51,11 @@ run-nomad:
 	HOME=$(NOMAD_HOME) NIX_SHELL=$(NIX_SHELL) \
 	nomad agent -dev -data-dir=$(NOMAD_HOME)
 
+.PHONY: run-nomad-root
+run-nomad-root:
+	HOME=$(NOMAD_HOME) \
+	sudo $(shell which nomad) agent -dev -data-dir=$(NOMAD_HOME)
+
 .PHONY: run-job
 run-job: $(NOMAD_JOB)
 	while ! nc -z $(NOMAD_IP) $(NOMAD_PORT); do \
@@ -71,6 +76,6 @@ develop:
 
 .PHONY: serve
 serve:
-	sudo make \
+	make \
 	NOMAD_VARIABLES=production.json NOMAD_JOB=production.hcl -j \
-	serve-artifacts run-haproxy run-consul run-nomad run-artifact-job
+	serve-artifacts run-haproxy run-consul run-nomad-root run-artifact-job
