@@ -4,8 +4,7 @@ export CONSUL_ADDR=http://$(CONSUL_IP):$(CONSUL_PORT)
 export NOMAD_IP=127.0.0.1
 export NOMAD_PORT=4646
 export NOMAD_ADDR=http://$(NOMAD_IP):$(NOMAD_PORT)
-#export NOMAD_HOME=$(shell pwd)/.cache
-export NOMAD_HOME=/tmp/nomad
+export NOMAD_HOME=$(shell [ ! -f .cache ] && mktemp -d > .cache; cat .cache)
 export NOMAD_NIX=$(shell pwd)/nomad.nix
 export NOMAD_JOB=development.hcl
 
@@ -39,10 +38,6 @@ serve-artifacts:
 	make -j app-artifact postgres-artifact
 	nix-shell -p python3 --run "python3 -m http.server --directory artifacts 8080"
 
-.PHONY: run-haproxy
-run-haproxy:
-	haproxy -f haproxy.conf
-
 .PHONY: run-consul
 run-consul:
 	consul agent -dev
@@ -69,6 +64,7 @@ run-artifact-job: $(NOMAD_JOB)
 	echo "Waiting for nomad at $(NOMAD_ADDR)"; sleep 2; done
 	while ! nc -z 127.0.0.1 8080; do \
 	echo "Waiting for artifacts at 127.0.0.1:8080"; sleep 2; done
+	consul config write consul-app-service-defaults.json
 	nomad job run $(NOMAD_JOB)
 
 .PHONY: develop

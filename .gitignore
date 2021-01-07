@@ -1,3 +1,5 @@
+.idea/
+.cache
 .env
 .cache/
 .direnv/

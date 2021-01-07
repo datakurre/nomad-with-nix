@@ -1,12 +1,23 @@
-variable "postgres_artifact" {
+variable "artifact_base_url" {
   type = string
-  default = "http://127.0.0.1:8080/postgresql-11.9-0.tar.gz"
+  default = "http://127.0.0.1:8080"
 }
 
-variable "app_artifact" {
+variable "postgres_version" {
   type = string
-  default = "http://127.0.0.1:8080/app-1.0.tar.gz"
+  default = "11.9-0"
 }
+
+variable "app_version" {
+  type = string
+  default = "1.0"
+}
+
+variable "port" {
+  type = number
+  default = 8800
+}
+
 
 job "production" {
 
@@ -56,13 +67,14 @@ EOH
       }
 
       artifact {
-        source = var.postgres_artifact
+        source = "${var.artifact_base_url}/postgresql-${var.postgres_version}.tar.gz"
         destination = "/"
       }
     }
   }
 
   group "app" {
+
     count = 2
 
     update {
@@ -70,6 +82,9 @@ EOH
       min_healthy_time = "5s"
       healthy_deadline = "5m"
       progress_deadline = "10m"
+#     canary = 1
+#     auto_promote = true
+#     auto_revert = true
     }
 
     network {
@@ -136,7 +151,7 @@ EOH
       }
 
       artifact {
-        source = var.postgres_artifact
+        source = "${var.artifact_base_url}/postgresql-${var.postgres_version}.tar.gz"
         destination = "/"
       }
     }
@@ -152,40 +167,42 @@ EOH
         command = "/bin/sh"
         args = ["-c", <<EOH
 set -e
+
 uvicorn main:app --host 0.0.0.0 --port ${NOMAD_PORT_http}
 EOH
         ]
       }
 
       artifact {
-        source = var.app_artifact
+        source = "${var.artifact_base_url}/app-${var.app_version}.tar.gz"
         destination = "/"
       }
     }
   }
 
   group "proxy" {
+
     network {
       mode = "bridge"
       port "public" {
-        static = 8090
+        static = var.port
       }
     }
 
     service {
       name = "proxy"
-      port = "8090"
+      port = "${var.port}"
 
       connect {
         gateway {
           proxy {}
           ingress {
             listener {
-              port = 8090
+              port = var.port
               protocol = "http"
               service {
                 name = "app"
-                hosts = [ "localhost:8090" ]
+                hosts = [ "localhost:${var.port}" ]
               }
             }
           }
