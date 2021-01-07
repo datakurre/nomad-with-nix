@@ -1,4 +1,6 @@
-{ sources ? import ./sources.nix }:
+{ sources ? import ./sources.nix
+, nixpkgs ? sources.nixpkgs
+}:
 
 let
 
@@ -17,7 +19,7 @@ let
 
   };
 
-  pkgs = import sources.nixpkgs {
+  pkgs = import nixpkgs {
     overlays = [ overlay ];
     config = {};
   };

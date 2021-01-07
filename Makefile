@@ -4,7 +4,8 @@ export CONSUL_ADDR=http://$(CONSUL_IP):$(CONSUL_PORT)
 export NOMAD_IP=127.0.0.1
 export NOMAD_PORT=4646
 export NOMAD_ADDR=http://$(NOMAD_IP):$(NOMAD_PORT)
-export NOMAD_HOME=$(shell pwd)/.cache
+#export NOMAD_HOME=$(shell pwd)/.cache
+export NOMAD_HOME=/tmp/nomad
 export NOMAD_NIX=$(shell pwd)/nomad.nix
 export NOMAD_JOB=development.hcl
 
@@ -54,7 +55,7 @@ run-nomad:
 .PHONY: run-nomad-root
 run-nomad-root:
 	HOME=$(NOMAD_HOME) \
-	sudo $(shell which nomad) agent -dev -data-dir=$(NOMAD_HOME)
+	sudo $(shell which nomad) agent -dev-connect -data-dir=$(NOMAD_HOME)
 
 .PHONY: run-job
 run-job: $(NOMAD_JOB)
@@ -68,7 +69,7 @@ run-artifact-job: $(NOMAD_JOB)
 	echo "Waiting for nomad at $(NOMAD_ADDR)"; sleep 2; done
 	while ! nc -z 127.0.0.1 8080; do \
 	echo "Waiting for artifacts at 127.0.0.1:8080"; sleep 2; done
-	levant deploy -var-file ${NOMAD_VARIABLES} $(NOMAD_JOB)
+	nomad job run $(NOMAD_JOB)
 
 .PHONY: develop
 develop:
@@ -77,5 +78,5 @@ develop:
 .PHONY: serve
 serve:
 	make \
-	NOMAD_VARIABLES=production.json NOMAD_JOB=production.hcl -j \
+	NOMAD_JOB=production.hcl -j \
 	serve-artifacts run-haproxy run-consul run-nomad-root run-artifact-job

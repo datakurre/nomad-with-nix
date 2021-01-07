@@ -1,0 +1,19 @@
+* document cni-plugins at /opt/cni/bin
+* document required NOMAD_HOME path length limit
+* document
+
+    boot.kernel.sysctl = {
+      "net.bridge.bridge-nf-call-arptables" = 1;
+      "net.bridge.bridge-nf-call-ip6tables" = 1;
+      "net.bridge.bridge-nf-call-iptables" = 1;
+    };
+
+  or
+
+     sudo echo 1 > /proc/sys/net/bridge/bridge-nf-call-arptables
+     sudo echo 1 > /proc/sys/net/bridge/bridge-nf-call-ip6tables
+     sudo echo 1 > /proc/sys/net/bridge/bridge-nf-call-iptables
+
+* document required manual connect step
+
+  https://github.com/hashicorp/nomad/issues/8647
