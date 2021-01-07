@@ -50,7 +50,7 @@ run-nomad:
 .PHONY: run-nomad-root
 run-nomad-root:
 	HOME=$(NOMAD_HOME) \
-	sudo $(shell which nomad) agent -dev-connect -data-dir=$(NOMAD_HOME)
+	sudo $(shell which nomad) agent -dev-connect -config=nomad.conf -data-dir=$(NOMAD_HOME)
 
 .PHONY: run-job
 run-job: $(NOMAD_JOB)
@@ -75,4 +75,4 @@ develop:
 serve:
 	make \
 	NOMAD_JOB=production.hcl -j \
-	serve-artifacts run-haproxy run-consul run-nomad-root run-artifact-job
+	serve-artifacts run-consul run-nomad-root run-artifact-job
