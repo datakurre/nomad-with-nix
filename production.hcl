@@ -5,7 +5,7 @@ variable "artifact_base_url" {
 
 variable "postgres_version" {
   type = string
-  default = "11.9-0"
+  default = "11.11-0"
 }
 
 variable "app_version" {

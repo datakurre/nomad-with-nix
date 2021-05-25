@@ -24,8 +24,8 @@ in
 runCommand name {
   buildInputs = [ makeWrapper ];
 } ''
-mkdir -p local/bin
-makeWrapper ${bashInteractive}/bin/sh local/bin/sh \
+mkdir -p bin
+makeWrapper ${bashInteractive}/bin/sh bin/sh \
   --set PATH ${coreutils}/bin \
   --prefix PATH : ${netcat}/bin \
   --prefix PATH : ${app}/bin
@@ -33,5 +33,5 @@ tar cvzhP \
   --hard-dereference \
   --exclude="${env}/*" \
   --files-from=${closure} \
-  local > $out || true
+  bin > $out || true
 ''

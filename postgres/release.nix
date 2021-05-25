@@ -1,4 +1,5 @@
-{ pkgs ? import ../nix {}
+{ pkgs ? import ../nix { nixpkgs = sources.nixpkgs-unstable; }
+, sources ? import ../nix/sources.nix
 , name ? "artifact"
 }:
 
@@ -22,8 +23,8 @@ in
 runCommand name {
   buildInputs = [ makeWrapper ];
 } ''
-mkdir -p local/bin
-makeWrapper ${bashInteractive}/bin/sh local/bin/sh \
+mkdir -p bin
+makeWrapper ${bashInteractive}/bin/sh bin/sh \
   --prefix PATH : ${coreutils}/bin \
   --prefix PATH : ${postgresql}/bin
 tar cvzhP \
@@ -31,5 +32,5 @@ tar cvzhP \
   --exclude="${env}" \
   --exclude="*ncurses*/ncurses*/ncurses*" \
   --files-from=${closure} \
-  local > $out || true
+  bin > $out || true
 ''
