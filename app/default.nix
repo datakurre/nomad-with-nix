@@ -2,7 +2,7 @@
 }:
 
 with pkgs;
-with (python38.override {
+with (python3.override {
   packageOverrides = self: super: {
     "starlette" = super."starlette".overridePythonAttrs(old: {
       postPatch = ''
