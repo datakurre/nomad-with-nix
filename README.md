@@ -5,6 +5,8 @@ Service mesh with Nomad and Nix
 
 This complete example demonstrates how Nix could be used to package fully self-contained application archives for Nomad's [Isolated Fork/Exec Driver](https://www.nomadproject.io/docs/drivers/exec).
 
+![](nomad.png)
+
 This example assumes [Nix](https://nixos.org/download.html) and works best with [Nix and direnv](https://nix.dev/tutorials/declarative-and-reproducible-developer-environments.html#direnv-automatically-activating-the-environment-on-directory-change).
 
 ```bash
