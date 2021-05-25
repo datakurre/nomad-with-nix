@@ -32,6 +32,8 @@ $ nix-shell
 $ make develop
 ```
 
+Note: Running `make develop` after `make serve` will fail, because `make serve` will create Nomad home directory with sudo. Run `rm .cache` to remove sentinel for Nomad home, and `make develop` to create new Nomad home, writable with the user.
+
 Prerequisites
 -------------
 
