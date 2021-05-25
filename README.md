@@ -29,7 +29,7 @@ In addition, this examples contains [Raw Fork/Exec Driver](https://www.nomadproj
 
 ```bash
 $ nix-shell
-$ make development
+$ make develop
 ```
 
 Prerequisites
