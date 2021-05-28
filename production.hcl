@@ -54,7 +54,16 @@ job "production" {
       }
 
       config {
-        command = "/usr/local/bin/entrypoint"
+        command = "/bin/sh"
+        args = ["-c", <<EOH
+set -e
+if [ ! -d ${PGDATA} ]; then
+  initdb -U postgres
+  echo "unix_socket_directories='${PGDATA}'" >> ${PGDATA}/postgresql.conf
+fi
+exec postgres
+EOH
+        ]
       }
 
       artifact {
@@ -152,11 +161,15 @@ EOH
 
       env {
         DATABASE_URL = "postgresql://app:app@${NOMAD_UPSTREAM_ADDR_database}/app"
-        HTTP_PORT = "${NOMAD_PORT_http}"
       }
 
       config {
-        command = "/usr/local/bin/entrypoint"
+        command = "/usr/local/bin/uvicorn"
+        args = [
+          "main:app",
+          "--host", "0.0.0.0",
+          "--port", "${NOMAD_PORT_http}"
+        ]
       }
 
       artifact {

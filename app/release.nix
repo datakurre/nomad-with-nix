@@ -30,14 +30,16 @@ makeWrapper ${bashInteractive}/bin/sh bin/sh \
   --prefix PATH : ${netcat}/bin \
   --prefix PATH : ${app}/bin
 
-# entrypoint
+# executables
 mkdir -p usr/local/bin
-cat > usr/local/bin/entrypoint << EOF
+for filename in ${env}/bin/??*; do
+  cat > usr/local/bin/$(basename $filename) << EOF
 #!/bin/sh
 set -e
-exec uvicorn main:app --host 0.0.0.0 --port \$HTTP_PORT
+exec $(basename $filename) "\$@"
 EOF
-chmod a+x usr/local/bin/entrypoint
+done
+chmod a+x usr/local/bin/*
 
 # artifact
 tar cvzhP \
